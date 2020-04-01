@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 
 // LEXICAL ANALYZER PART
 /* Variables */
@@ -10,6 +11,11 @@ int lexLen;
 int token;
 int nextToken;
 FILE *in_fp, *fopen();
+char *line = NULL;
+size_t line_len = 0;
+char *line_stream = NULL;
+
+
 
 /* Function declarations */
 void addChar();
@@ -41,14 +47,19 @@ void error();
 /* main driver */
 void main(int argc, const char * argv[]) {
     /* Open the input data file and process its contents */
+    int count = 0;
     if ((in_fp = fopen(argv[1], "r")) == NULL)
         printf("ERROR - cannot open the text file \n");
     else {
-        getChar();
-        do {
-            lex();
-            stmt();
-        } while (nextToken != EOF);
+        while(getline(&line, &line_len, in_fp)!= -1){
+            line_stream = fmemopen(line, strlen(line), "r");
+            getChar();
+            do {
+                lex();
+                stmt();
+            } while (nextToken != EOF);
+            printf("\n\n");
+        }
     }
 }
 
@@ -103,7 +114,7 @@ void addChar() {
 /* getChar - a function to get the next character of
 input and determine its character class */
 void getChar() {
-    if ((nextChar = getc(in_fp)) != EOF) {
+    if ((nextChar = getc(line_stream)) != EOF) {
         if (isalpha(nextChar))
             charClass = LETTER;
         else if (isdigit(nextChar))
