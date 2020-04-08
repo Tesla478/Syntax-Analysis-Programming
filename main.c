@@ -52,14 +52,14 @@ void main(int argc, const char * argv[]) {
     if ((in_fp = fopen(argv[1], "r")) == NULL)
         printf("ERROR - cannot open the text file \n");
     else {
+        // For each line
         while(getline(&line, &line_len, in_fp)!= -1){
             line_stream = fmemopen(line, strlen(line), "r");
             getChar();
-            do {
-                lex();
+            lex();
+            if(nextToken != EOF){
                 stmt();
-            } while (nextToken != EOF);
-            printf("\n\n");
+            }
         }
     }
 }
